@@ -1,6 +1,6 @@
 # Пакет с пакетами — Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development to implement this plan. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Publish the approved minimalist 3D wind/tree/bag collection game with fair 60% rounds and responsive pointer control.
 
@@ -31,58 +31,66 @@
 - [x] Create isolated new repository and copy approved design.
 - [x] Pin Three/Vite and start Sites dependency helper.
 - [x] Create a new private Site once and persist its exact ID.
-- [ ] Confirm dependency installation succeeds.
-- [ ] Commit scaffold and reviewed plan.
+- [x] Confirm dependency installation succeeds.
+- [x] Commit scaffold and reviewed plan.
 
 ### Task 2: Tree + sparse 3D cloth (physics agent)
 
 **Files:** `src/core/random.js`, `src/core/tree.js`, `src/core/cloth.js`, `tests/tree.test.js`, `tests/cloth.test.js`.
 
-- [ ] Write failing Node tests before code: same seed produces identical bounded tree; different seeds differ; at least8 visible separated hook pairs; hookAt/capsules use same sway. Cloth template must have depth, open mouth and two actual handle loops, <=64 nodes; pinned handles remain within tolerance under wind; free/held meshes move in all3 coordinates, bounded edge stretch and finite state; snapshot restore reproduces continuing motion.
-- [ ] Run `node --test tests/tree.test.js tests/cloth.test.js`; record expected missing implementation failure.
-- [ ] Implement deterministic generator and fixed-step position-based membrane with distance/bending constraints, air drag/wind/gravity and candidate capsule contacts.
-- [ ] Run those tests; inspect physical movement and stability, fix real failures without weakening bounds.
-- [ ] Report interface details and test evidence. Owner integrates; no other files changed by agent.
+- [x] Write failing Node tests before code: same seed produces identical bounded tree; different seeds differ; at least8 visible separated hook pairs; hookAt/capsules use same sway. Cloth template must have depth, open mouth and two actual handle loops, <=64 nodes; pinned handles remain within tolerance under wind; free/held meshes move in all3 coordinates, bounded edge stretch and finite state; snapshot restore reproduces continuing motion.
+- [x] Run `node --test tests/tree.test.js tests/cloth.test.js`; record expected missing implementation failure.
+- [x] Implement deterministic generator and fixed-step position-based membrane with distance/bending constraints, air drag/wind/gravity and candidate capsule contacts.
+- [x] Run those tests; inspect physical movement and stability, fix real failures without weakening bounds.
+- [x] Report interface details and test evidence. Owner integrates; no other files changed by agent.
 
 ### Task 3: Round rules + complete game state (gameplay agent)
 
 **Files:** `src/core/rules.js`, `src/core/world.js`, `tests/rules.test.js`, `tests/world.test.js`.
 
-- [ ] Write failing tests first: exactceil(.6N) over100 rounds, finite fair lifetimes, quota and persistent totals, no automatic wins, collect once, missed once, capture at deadline wins, held bag safe from wind, detach2→1→0, pause owned outsideadvance, restart generation, fullsnapshot continuation, <=22active records under zero collects/oneheld/repeatedmisses.
-- [ ] Run tests to observe missing functionality; implement rules and World using shared physics interfaces.
-- [ ] Validate actual physics arrival/branch attachment, wide mouth acceptance, free recapture, 22s initial round and progression to a new deterministic tree.
-- [ ] Run `node --test tests/rules.test.js tests/world.test.js`; report contracts and evidence.
+- [x] Write failing tests first: exactceil(.6N) over100 rounds, finite fair lifetimes, quota and persistent totals, no automatic wins, collect once, missed once, capture at deadline wins, held bag safe from wind, detach2→1→0, pause owned outsideadvance, restart generation, fullsnapshot continuation, <=22active records under zero collects/oneheld/repeatedmisses.
+- [x] Run tests to observe missing functionality; implement rules and World using shared physics interfaces.
+- [x] Validate actual physics arrival/branch attachment, wide mouth acceptance, free recapture, 22s initial round and progression to a new deterministic tree.
+- [x] Run `node --test tests/rules.test.js tests/world.test.js`; report contracts and evidence.
 
 ### Task 4: 3D rendering (visual agent)
 
 **Files:** `src/renderer.js`, optional `src/materials.js`, `tests/renderer-contract.test.js` (only meaningful projection/budget checks).
 
-- [ ] Implement GameRenderer against frozen snapshot, genuine tapered 3D branch tubes and dynamic bag geometry.
-- [ ] Create softly lit translucent plastic with visible depth, distinct handles and folds, dark organic tree; preserve reference composition.
-- [ ] Implement shared mouth glow and forgiving screen-space picking. Resource reuse/disposal, shadow/pixel limits and canvas resize.
-- [ ] Verify module imports/builds with Three; report visual choices and integration notes. Do not edit main app/core/package files.
+- [x] Implement GameRenderer against frozen snapshot, genuine tapered 3D branch tubes and dynamic bag geometry.
+- [x] Create softly lit translucent plastic with visible depth, distinct handles and folds, dark organic tree; preserve reference composition.
+- [x] Implement shared mouth glow and forgiving screen-space picking. Resource reuse/disposal, shadow/pixel limits and canvas resize.
+- [x] Verify module imports/builds with Three; report visual choices and integration notes. Do not edit main app/core/package files.
 
 ### Task 5: Worker bridge, UI and interaction (owner)
 
 **Files:** `src/worker.js`, `src/runner.js`, `src/main.js`, `src/style.css`, `src/audio.js`, `index.html`, `tests/runner.test.js`, `tests/worker.test.js`.
 
-- [ ] Test one-in-flight backpressure, init/run errors, late replies after restart, coalesced moves without losing grab/drop, and restored fallback commands before bridge implementation.
-- [ ] Build module Worker around World, transferring copies of snapshot arrays. Keep one full confirmed state and unacknowledged commands for fallback. Tag generation and command sequence.
-- [ ] Implement four-corner HUD, lightweight bars near tethered bags, intro, interlude, end result and retry; author credit; best local score with storage errors caught.
-- [ ] Implement pointer capture: select visible bag, retain grab offset, soft drag point on z=.8, projected mouth glow, drop/cancel, one pointer only. Keyboard Enter/Space start/continue, R restart; accessible dialog/help and labels.
-- [ ] Real game clock excludes document.hidden and help pause; blur cancels held pointer. Add quiet synthesized rustle enabled by gesture and a mute control.
-- [ ] Opt-in `?debug=1` shows visible performance/counters for browser QA; default play UI contains no diagnostics.
+- [x] Test one-in-flight backpressure, init/run errors, late replies after restart, coalesced moves without losing grab/drop, and restored fallback commands before bridge implementation.
+- [x] Build module Worker around World, transferring copies of snapshot arrays. Keep one full confirmed state and unacknowledged commands for fallback. Tag generation and command sequence.
+- [x] Implement four-corner HUD, lightweight bars near tethered bags, intro, interlude, end result and retry; author credit; best local score with storage errors caught.
+- [x] Implement pointer capture: select visible bag, retain grab offset, soft drag point on z=.8, projected mouth glow, drop/cancel, one pointer only. Keyboard Enter/Space start/continue, R restart; accessible dialog/help and labels.
+- [x] Real game clock excludes document.hidden and help pause; blur cancels held pointer. Add quiet synthesized rustle enabled by gesture and a mute control.
+- [x] Opt-in `?debug=1` shows visible performance/counters for browser QA; default play UI contains no diagnostics.
 
 ### Task 6: Integration, browser QA and publication (owner + fresh reviewers)
 
 **Files:** all source, tests, `README.md`, `.github/workflows/pages.yml`.
 
-- [ ] Run `npm test` and `npm run build` and fix integration failures using targeted failing regressions.
-- [ ] Request independent spec-compliance and quality reviews; resolve actual blockers.
-- [ ] Launch local preview per Sites local-preview reference; test mouse drag/drop, timer, round failure/retry, successful threshold transition/new tree, real worker, falling/offscreen losses and alpha appearance.
-- [ ] Use a local QA iframe harness at390×780 to verify narrow viewport inside the browser; do not call it a physical phone test.
-- [ ] Measure active frame/worker times, visible triangle/node/object counts and a later round. Fix demonstrated cost; repeat only changed checks.
-- [ ] Write README controls, constraints, build/deploy and physics limits. Commit final source.
+- [x] Run `npm test` and `npm run build` and fix integration failures using targeted failing regressions.
+- [x] Request independent spec-compliance and quality reviews; resolve actual blockers.
+- [x] Launch local preview per Sites local-preview reference; test mouse drag/drop, timer, round failure/retry, successful threshold transition/new tree, real worker, falling/offscreen losses and alpha appearance.
+- [x] Use a local QA iframe harness at390×780 to verify narrow viewport inside the browser; do not call it a physical phone test.
+- [x] Measure active frame/worker times, visible triangle/node/object counts and a later round. Fix demonstrated cost; repeat only changed checks.
+- [x] Write README controls, constraints, build/deploy and physics limits. Commit final source.
 - [ ] Publish new Site through source helper, exact commit/archive, preserve owner-private audience; verify terminal deployment success.
 - [ ] Publish source/build to a separate GitHub repository/Pages following existing user hosting preference, attach no PR unless created. Verify successful workflow and matching deployed bytes.
 - [ ] Save published screenshot, show resulting game/address, stop owned preview servers and close temporary QA tabs.
+
+### Verification evidence — 2026-10-24
+
+- All 36 Node tests and the Vite production build pass. Actual module Worker integration is tested.
+- Desktop browser: all six bags dragged into the receiver; round 2 starts with a new tree and persistent score. Median frame 16.7 ms, P95 17.6 ms; physics typically 1–2 ms in this desktop preview.
+- Narrow iframe viewport 390×680: native pointer drag scores +1; HUD fits; all six missed bags produce the result; retry starts a new tree. This is viewport QA, not a physical phone test.
+- Independent spec review found a missing no-WebGL reload listener; fixed before renderer initialization. Independent quality review found stale event timestamps; reproduced with a failing real-World regression, fixed with a shared monotonic unpaused clock, all runner tests pass, rereview has no unresolved findings.
+- Build warning: one Three.js bundle exceeds Vite’s 500 kB advisory (578 kB, 148 kB gzip); runtime rendering and physical budgets remain bounded.

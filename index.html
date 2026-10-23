@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f4ee" />
+  <meta name="description" content="Пакет с пакетами — авторская 3D-игра Арсения Попова. Снимай пакеты с ветвей и успей сложить их, пока не унёс ветер." />
+  <title>Пакет с пакетами — Арсений Попов</title>
+</head>
+<body>
+  <main id="game" aria-label="Пакет с пакетами">
+    <canvas id="scene" tabindex="0" aria-label="Объёмное дерево с пакетами. Зажмите пакет мышью или пальцем, перенесите в большой пакет слева внизу и отпустите."></canvas>
+    <div id="hud" class="hud" hidden>
+      <div class="timer-corner"><span class="quiet-label">Осталось</span><div id="timer" class="timer" aria-label="Осталось времени">00:22<span class="timer-tenth">.0</span></div><div class="timer-track"><i id="timer-fill"></i></div></div>
+      <div class="wind-corner"><span class="quiet-label">Ветер</span><div class="wind-value"><svg viewBox="0 0 40 18" aria-hidden="true"><path d="M37 9H4m8-6L4 9l8 6"/></svg><span id="wind">1,5</span><small>м/с</small></div></div>
+      <div id="round-label" class="round-label">Раунд 1</div>
+      <div class="score-corner"><div class="score-title">В пакете</div><div id="score" class="score">0</div><div class="missed-line"><span id="missed">0</span><span>улетело</span></div><div id="quota" class="quota">Для следующего дерева: 0 / 4</div></div>
+      <div id="collector-hint" class="collector-hint">отпусти сюда</div>
+    </div>
+    <div id="bag-bars" class="bag-bars" aria-hidden="true"></div>
+    <div id="popups" class="popups" aria-hidden="true"></div>
+    <section id="intro" class="intro" aria-labelledby="intro-title">
+      <div class="intro-content"><h1 id="intro-title">пакет<br>с пакетами<span class="title-dot">.</span></h1><p>Сними с веток. Сложи в пакет.<br>Пока не унёс ветер.</p><button id="start" class="primary" disabled>Разворачиваем…</button><p class="intro-rule">Собери 60%, чтобы пройти дальше.</p></div>
+    </section>
+    <section id="interlude" class="interlude" hidden aria-live="polite"><div id="interlude-status">Дерево спасено</div><h2 id="interlude-title">Следующее дерево</h2><p id="interlude-copy"></p><button id="continue" class="text-button">Продолжить</button></section>
+    <section id="result" class="result" hidden aria-labelledby="result-title"><div class="result-content"><p class="result-round" id="result-round"></p><h2 id="result-title">Ветер оказался<br>быстрее.</h2><div class="result-counts"><div><strong id="result-caught">0</strong><span>в пакете</span></div><div class="result-lost"><strong id="result-missed">0</strong><span>улетело</span></div></div><p id="best" class="best"></p><button id="retry" class="primary">Ещё раз</button></div></section>
+    <div id="loading-note" class="loading-note" role="status">Выращиваем дерево</div>
+    <section id="error" class="error" hidden><h2>Не удалось открыть игру</h2><p id="error-message"></p><button id="reload" class="primary">Попробовать снова</button></section>
+    <footer class="footer"><div class="footer-actions"><button id="sound" class="icon-button" aria-label="Включить звук" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path id="sound-mark" d="m16 9 5 6m0-6-5 6"/></svg></button><button id="help" class="icon-button help-button" aria-label="Как играть">?</button></div><a class="credit" href="https://t.me/votposmotrim" target="_blank" rel="noopener noreferrer">автор Арсений Попов</a><span class="footer-note">пакет с пакетами</span></footer>
+    <dialog id="help-dialog"><button id="close-help" class="close-help icon-button" aria-label="Закрыть справку">×</button><h2>Поймать, пока держится.</h2><p>Зажми пакет на дереве, перенеси к горловине большого пакета внизу слева и отпусти, когда она подсветится.</p><p>Полоска показывает, сколько осталось до отрыва. Сначала отпустится одна ручка, потом другая. Улетающий пакет тоже можно поймать.</p><p>Для следующего раунда нужно собрать 60%. С каждым новым деревом ветер сильнее, а пакетов больше.</p><p class="help-keys">Мышь или палец — схватить и перенести.<br>R — начать заново. Пробел — начать или продолжить.</p><button id="help-done" class="primary">К дереву</button></dialog>
+    <pre id="debug" class="debug" hidden></pre>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
