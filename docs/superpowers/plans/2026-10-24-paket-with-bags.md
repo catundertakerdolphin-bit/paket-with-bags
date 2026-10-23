@@ -83,9 +83,9 @@
 - [x] Use a local QA iframe harness at390×780 to verify narrow viewport inside the browser; do not call it a physical phone test.
 - [x] Measure active frame/worker times, visible triangle/node/object counts and a later round. Fix demonstrated cost; repeat only changed checks.
 - [x] Write README controls, constraints, build/deploy and physics limits. Commit final source.
-- [ ] Publish new Site through source helper, exact commit/archive, preserve owner-private audience; verify terminal deployment success.
-- [ ] Publish source/build to a separate GitHub repository/Pages following existing user hosting preference, attach no PR unless created. Verify successful workflow and matching deployed bytes.
-- [ ] Save published screenshot, show resulting game/address, stop owned preview servers and close temporary QA tabs.
+- [x] Publish new Site through source helper, exact commit/archive, preserve owner-private audience; verify terminal deployment success.
+- [x] Publish source/build to a separate GitHub repository/Pages following existing user hosting preference, attach no PR unless created. Verify successful workflow and matching deployed bytes.
+- [x] Save published screenshot, show resulting game/address, stop owned preview servers and close temporary QA tabs.
 
 ### Verification evidence — 2026-10-24
 
@@ -94,3 +94,10 @@
 - Narrow iframe viewport 390×680: native pointer drag scores +1; HUD fits; all six missed bags produce the result; retry starts a new tree. This is viewport QA, not a physical phone test.
 - Independent spec review found a missing no-WebGL reload listener; fixed before renderer initialization. Independent quality review found stale event timestamps; reproduced with a failing real-World regression, fixed with a shared monotonic unpaused clock, all runner tests pass, rereview has no unresolved findings.
 - Build warning: one Three.js bundle exceeds Vite’s 500 kB advisory (578 kB, 148 kB gzip); runtime rendering and physical budgets remain bounded.
+
+### Publication evidence
+
+- Sites deployment `appgdep_6adbb33416d08191867c095093944731` succeeded for application commit `5f59f2de1f5bee93fa99daf6f1b4b700c3dab33a`; its owner-private audience is preserved.
+- GitHub Actions run `40010409389` passed tests, build and Pages deployment for the same application commit.
+- Public page: https://catundertakerdolphin-bit.github.io/paket-with-bags/ . All four deployed files (HTML, CSS, game JS and Worker JS) were downloaded and matched the local production build byte for byte.
+- Published gameplay screenshot saved locally; temporary QA tabs and the owned Vite process were closed.
