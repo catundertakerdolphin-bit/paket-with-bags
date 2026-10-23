@@ -23,8 +23,8 @@ export function roundConfig(round=1,seed=1){
 export function makeLayout(aspect=1){
  aspect=Math.max(.35,Math.min(3.5,Number(aspect)||1));
  const viewHeight=2*Math.tan(20*Math.PI/180)*10,viewWidth=viewHeight*aspect;
- const width=Math.min(1.8,Math.max(.96,viewWidth*.31));
- return {aspect,viewWidth,viewHeight,treeWidth:Math.min(4.3,viewWidth*.84),treeX:viewWidth*.16,mouth:{center:[-viewWidth*.28,.9,.8],width,depth:.95},collectorScale:width/.74};
+ const width=Math.min(1.7,Math.max(.96,viewWidth*.31));
+ return {aspect,viewWidth,viewHeight,treeWidth:Math.min(4.3,viewWidth*.58),treeX:viewWidth*(aspect<.8?.23:.16),mouth:{center:[-viewWidth*.28,1.35,.8],width,depth:.95},collectorScale:width/.74};
 }
 
 // This target volume is shared by pointer glow and accepted releases.

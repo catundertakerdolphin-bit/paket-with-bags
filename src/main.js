@@ -70,7 +70,7 @@ function down(event){
   if(event.button!==0||event.isPrimary===false||drag||runner.state.phase!=='playing'||$('help-dialog').open)return;
   const pick=renderer.pick(event.clientX,event.clientY);if(!pick)return;
   event.preventDefault();sound.activate();const point=renderer.pointerPoint(event.clientX,event.clientY),target=[...pick.center];target[2]=.8;
-  const seq=runner.send('grab',{id:pick.id,point:target});drag={id:pick.id,pointerId:event.pointerId,offset:[pick.center[0]-point[0],pick.center[1]-point[1]],target,grabSeq:seq};
+  const seq=runner.send('grab',{id:pick.id,particle:pick.particle,point:target});drag={id:pick.id,pointerId:event.pointerId,offset:[pick.center[0]-point[0],pick.center[1]-point[1]],target,grabSeq:seq};
   canvas.setPointerCapture(event.pointerId);canvas.classList.add('dragging');canvas.focus({preventScroll:true});
 }
 function move(event){
@@ -85,7 +85,7 @@ function up(event){
 function begin(){sound.activate();runner.send('start');canvas.focus({preventScroll:true});}
 function restart(){clearDrag(false);runner.restart(newSeed());canvas.focus({preventScroll:true});}
 function pause(){runner.pause(document.hidden||$('help-dialog').open);}
-function resize(){const rect=canvas.getBoundingClientRect();renderer.resize(rect.width,rect.height);runner.resize(rect.width/rect.height);}
+function resize(){clearDrag();const rect=canvas.getBoundingClientRect();renderer.resize(rect.width,rect.height);runner.resize(rect.width/rect.height);}
 function frame(now){
   if(stopped)return;const dt=Math.min(.1,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
   try{
@@ -104,7 +104,7 @@ function frame(now){
 $('reload').addEventListener('click',()=>location.reload());
 try{
   renderer=new GameRenderer(canvas);const rect=canvas.getBoundingClientRect();
-  runner=new SimulationRunner({WorldClass:World,seed:newSeed(),aspect:rect.width/rect.height,onState:receive});
+  runner=new SimulationRunner({WorldClass:World,seed:debugEnabled&&new URLSearchParams(location.search).has('seed')?Number(new URLSearchParams(location.search).get('seed'))>>>0:newSeed(),aspect:rect.width/rect.height,onState:receive});
   canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);
   canvas.addEventListener('lostpointercapture',()=>{if(drag)clearDrag(true);});canvas.addEventListener('contextmenu',event=>event.preventDefault());
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();runner.pause(true);showError('Браузер приостановил 3D. Нажмите «Попробовать снова».');});

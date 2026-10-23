@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {roundConfig,makeLayout,acceptsDrop} from '../src/core/rules.js';
+import {generateTree,treeCapsules} from '../src/core/tree.js';
 
 test('first 100 rounds have exact quotas and a fair finite rescue order',()=>{
  for(let round=1;round<=100;round++){
@@ -32,5 +33,14 @@ test('mouth accepts a forgiving finite 3D target volume across layouts',()=>{
   assert.ok(!acceptsDrop([p[0],p[1],p[2]+3],l));
   assert.ok(!acceptsDrop([NaN,p[1],p[2]],l));
   assert.ok(l.mouth.width/l.viewWidth*390>=88 || aspect>1);
+ }
+});
+test('the complete spatial bonsai crown fits narrow and wide viewports',()=>{
+ for(const aspect of [.5,.75,1.8])for(let seed=1;seed<=40;seed++){
+  const layout=makeLayout(aspect),tree=generateTree(seed,{width:layout.treeWidth,height:5.15,originX:layout.treeX});
+  for(const wind of [1.5,12])for(const capsule of treeCapsules(tree,2,wind))for(const point of [capsule.a,capsule.b]){
+   const horizontal=(Math.abs(point[0])+capsule.radius)/((10-point[2])*Math.tan(20*Math.PI/180)*aspect);
+   assert.ok(horizontal<.98,`clipped crown: aspect ${aspect}, seed ${seed}`);
+  }
  }
 });

@@ -3,7 +3,7 @@ import { BAG_TEMPLATE } from './core/cloth.js';
 import { treeSway } from './core/tree.js';
 import { acceptsDrop } from './core/rules.js';
 
-const PAPER = 0xf6f4ee;
+const PAPER = 0xffffff;
 const PALETTE = [0xe48a87,0x8cbdb7,0xd3b25d,0xa6a0c7,0x9db4c8,0xbac46b,0xcb9eae];
 const Z_PLANE = new THREE.Plane(new THREE.Vector3(0,0,1),-.8);
 const vector = new THREE.Vector3();
@@ -30,20 +30,39 @@ export function nearestScreenBag(bags,x,y) {
   return closest;
 }
 
+/** Use the deformed surface, including a restricted ray-hit face when present. */
+export function nearestBagParticle(positions,point,indices=null) {
+  const candidates=indices||BAG_TEMPLATE.bodyIndices;let nearest=-1,best=Infinity;
+  for(const index of candidates){
+    const i=index*3;if(i+2>=positions.length)continue;
+    const distance=(positions[i]-point[0])**2+(positions[i+1]-point[1])**2+(positions[i+2]-point[2])**2;
+    if(distance<best){best=distance;nearest=index;}
+  }
+  return nearest;
+}
+
 function plasticMaterial(color,receiver=false) {
-  const material=new THREE.MeshPhongMaterial({color,transparent:true,opacity:receiver ? .34 : .56,side:THREE.DoubleSide,depthWrite:false,shininess:receiver ? 116 : 88,specular:0xf5f1df});
+  const material=new THREE.MeshPhongMaterial({color,transparent:true,opacity:receiver ? .25 : .4,side:THREE.DoubleSide,depthWrite:false,shininess:receiver ? 136 : 118,specular:0xffffff});
   material.forceSinglePass=true;
   material.onBeforeCompile=shader=>{
     shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec2 vPlasticUv;').replace('#include <begin_vertex>','#include <begin_vertex>\nvPlasticUv=uv;');
     shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec2 vPlasticUv;').replace('#include <color_fragment>',`#include <color_fragment>
-      float foldL=exp(-110.0*abs(vPlasticUv.x-.13-.055*sin(vPlasticUv.y*7.0)));
-      float foldR=exp(-110.0*abs(vPlasticUv.x-.87+.045*sin(vPlasticUv.y*8.0)));
-      float wrinkle=sin(vPlasticUv.y*49.0+vPlasticUv.x*13.0)*sin(vPlasticUv.x*29.0-vPlasticUv.y*8.0);
-      diffuseColor.rgb*=.965+.035*wrinkle;
-      diffuseColor.rgb+=vec3((foldL+foldR)*.075);
+      float wrinkle=sin(vPlasticUv.y*97.0+vPlasticUv.x*31.0+sin(vPlasticUv.x*19.0))*sin(vPlasticUv.x*61.0-vPlasticUv.y*23.0);
+      float foldL=exp(-105.0*abs(vPlasticUv.x-.12-.035*sin(vPlasticUv.y*12.0)));
+      float foldR=exp(-105.0*abs(vPlasticUv.x-.88+.035*sin(vPlasticUv.y*11.0)));
+      diffuseColor.rgb*=.97+.03*wrinkle;
+      diffuseColor.rgb+=vec3((foldL+foldR)*.055);
+    `);
+    shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
+      vec3 filmFace=normalize(cross(dFdx(vViewPosition),dFdy(vViewPosition)));
+      if(dot(filmFace,normal)<0.0)filmFace=-filmFace;
+      normal=normalize(mix(normal,filmFace,.27)+vec3(wrinkle*.065,sin(vPlasticUv.x*83.0+vPlasticUv.y*43.0)*.035,0.0));
+      float filmEdge=pow(1.0-clamp(abs(dot(normal,normalize(vViewPosition))),0.0,1.0),2.4);
+      diffuseColor.a=clamp(opacity*(.63+filmEdge*.82)+abs(wrinkle)*.035,.05,.74);
+      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.9,.94,.95),filmEdge*.18);
     `);
   };
-  material.customProgramCacheKey=()=> 'thin-plastic-1';
+  material.customProgramCacheKey=()=> 'thin-plastic-2';
   return material;
 }
 
@@ -92,7 +111,7 @@ function setBagPose(visual,positions,center) {
 
 export function createTreeGeometry(tree) {
   const positions=[],colors=[],indices=[];
-  const bark=new THREE.Color(0x514d43),light=new THREE.Color();
+  const bark=new THREE.Color(0x93684c),light=new THREE.Color();
   for(const path of tree.paths) {
     const points=path.points.map(point=>new THREE.Vector3(...point)),rings=points.length,sides=6;
     const base=positions.length/3;
@@ -103,7 +122,7 @@ export function createTreeGeometry(tree) {
       const radius=path.radii[i]??path.radii[path.radii.length-1]??.02;
       for(let side=0;side<sides;side++) {
         const angle=side/sides*Math.PI*2,point=points[i].clone().addScaledVector(normal,Math.cos(angle)*radius).addScaledVector(binormal,Math.sin(angle)*radius);
-        positions.push(point.x,point.y,point.z);light.copy(bark).multiplyScalar(.84+.15*Math.cos(angle+.4)+.07*Math.sin(i*1.7));colors.push(light.r,light.g,light.b);
+        positions.push(point.x,point.y,point.z);light.copy(bark).multiplyScalar(.95+.075*Math.cos(angle+.4)+.035*Math.sin(i*1.7));colors.push(light.r,light.g,light.b);
         if(i<rings-1){const a=base+i*sides+side,b=base+i*sides+(side+1)%sides,c=a+sides,d=b+sides;indices.push(a,b,c,b,d,c);}
       }
     }
@@ -120,19 +139,19 @@ function softShadowTexture() {
 
 export class GameRenderer {
   constructor(canvas) {
-    this.canvas=canvas;this.width=1;this.height=1;this.quality=1;this.visualTime=0;this.frameAverage=1/60;this.lastResize=0;this.lastShadow=0;this.dirty=true;this.screenBags=[];this.bags=new Map();this.content=[];this.state=null;this.treeKey=null;
+    this.canvas=canvas;this.width=1;this.height=1;this.quality=1;this.visualTime=0;this.frameAverage=1/60;this.lastResize=0;this.lastShadow=0;this.dirty=true;this.screenBags=[];this.bags=new Map();this.content=new Map();this.state=null;this.treeKey=null;
     this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
-    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.13;
-    this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;this.renderer.shadowMap.autoUpdate=false;
-    this.scene=new THREE.Scene();this.scene.background=new THREE.Color(PAPER);this.scene.fog=new THREE.Fog(PAPER,16,32);this.camera=createGameCamera();
-    this.scene.add(new THREE.HemisphereLight(0xfffbec,0xb8bbb8,2.6));
-    const key=new THREE.DirectionalLight(0xfff9e9,3.1);key.position.set(-3,8,5);key.castShadow=true;key.shadow.mapSize.set(512,512);key.shadow.camera.left=-6;key.shadow.camera.right=6;key.shadow.camera.top=7;key.shadow.camera.bottom=-2;key.shadow.normalBias=.04;key.shadow.bias=-.0003;key.shadow.radius=3;this.scene.add(key);this.key=key;
-    const fill=new THREE.DirectionalLight(0xe5ecf2,1.2);fill.position.set(5,4,-3);this.scene.add(fill);
-    this.ground=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.MeshStandardMaterial({color:PAPER,roughness:1,metalness:0}));this.ground.rotation.x=-Math.PI/2;this.ground.position.y=-.025;this.ground.receiveShadow=true;this.scene.add(this.ground);
-    this.treeMaterial=new THREE.MeshStandardMaterial({color:0x777264,vertexColors:true,roughness:.86,metalness:0});
+    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.04;
+    this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFShadowMap;this.renderer.shadowMap.autoUpdate=false;
+    this.scene=new THREE.Scene();this.scene.background=new THREE.Color(PAPER);this.camera=createGameCamera();
+    this.scene.add(new THREE.HemisphereLight(0xf8fbff,0xd8d5d0,1.05));
+    const key=new THREE.DirectionalLight(0xfff3e5,2.7);key.position.set(-4.5,7,6);key.castShadow=true;key.shadow.mapSize.set(512,512);key.shadow.camera.left=-6;key.shadow.camera.right=6;key.shadow.camera.top=7;key.shadow.camera.bottom=-2;key.shadow.normalBias=.025;key.shadow.bias=-.0003;key.shadow.radius=3;this.scene.add(key);this.key=key;
+    const fill=new THREE.DirectionalLight(0xe5efff,.55);fill.position.set(4,4,-4);this.scene.add(fill);
+    this.ground=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.ShadowMaterial({color:0x615b54,opacity:.13}));this.ground.rotation.x=-Math.PI/2;this.ground.position.y=-.025;this.ground.receiveShadow=true;this.scene.add(this.ground);
+    this.treeMaterial=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.91,metalness:0,flatShading:true});
     this.treeGroup=new THREE.Group();this.scene.add(this.treeGroup);
-    this.materials=PALETTE.map(color=>plasticMaterial(color));this.collectorMaterial=plasticMaterial(0xb7c9cf,true);
-    this.collector=makeBagVisual(this.collectorMaterial);this.collector.seamMaterial.opacity=.29;this.collector.group.visible=false;this.scene.add(this.collector.group);
+    this.materials=PALETTE.map(color=>plasticMaterial(color));this.collectorMaterial=plasticMaterial(0xe4e9e8,true);
+    this.collector=makeBagVisual(this.collectorMaterial);this.collector.seamMaterial.opacity=.2;this.collector.group.visible=false;this.scene.add(this.collector.group);
     this.shadowTexture=softShadowTexture();this.contacts=[];
     for(let i=0;i<2;i++){const plane=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:this.shadowTexture,transparent:true,depthWrite:false}));plane.rotation.x=-Math.PI/2;plane.position.y=.002;plane.renderOrder=1;this.scene.add(plane);this.contacts.push(plane);}
     const rimGeometry=new THREE.BufferGeometry();rimGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(40*3),3));
@@ -186,17 +205,17 @@ export class GameRenderer {
   }
 
   updateContent(collector,layout) {
-    const count=Math.min(8,typeof collector.fill==='number'?collector.fill:Array.isArray(collector.fill)?collector.fill.length:0);
-    while(this.content.length<count){const visual=makeBagVisual(this.materials[this.content.length%this.materials.length]);this.content.push(visual);this.scene.add(visual.group);}
-    for(let index=0;index<this.content.length;index++){
-      const visual=this.content[index];visual.group.visible=index<count;if(index>=count)continue;
-      const scale=Math.min(.5,layout.collectorScale*.32),angle=index*2.39,center=[layout.mouth.center[0]+Math.cos(angle)*layout.mouth.width*.18,.22+Math.floor(index/3)*.12,layout.mouth.center[2]+Math.sin(angle)*layout.mouth.depth*.16];
-      if(!visual.contentReady||visual.contentKey!==`${layout.mouth.center[0]}:${layout.collectorScale}`){
-        const positions=new Float32Array(BAG_TEMPLATE.positions.length);
-        for(let j=0;j<positions.length;j+=3){positions[j]=BAG_TEMPLATE.positions[j]*scale+center[0];positions[j+1]=BAG_TEMPLATE.positions[j+1]*scale*.46+center[1];positions[j+2]=BAG_TEMPLATE.positions[j+2]*scale+center[2];}
-        setBagPose(visual,positions,center);visual.contentReady=true;visual.contentKey=`${layout.mouth.center[0]}:${layout.collectorScale}`;
-      }
+    const active=new Set();
+    // These are the same simulated membranes that entered the receiver. No
+    // replacement template or per-instance squash can erase their folds.
+    for(const bag of (collector.contents||[]).slice(-8)){
+      if(!bag.positions||this.bags.has(bag.id))continue;
+      active.add(bag.id);let visual=this.content.get(bag.id);
+      if(!visual){visual=makeBagVisual(this.materials[(bag.colorIndex||0)%this.materials.length]);this.content.set(bag.id,visual);this.scene.add(visual.group);}
+      visual.group.visible=true;visual.mesh.userData.bag=null;
+      if(visual.lastPositions!==bag.positions)setBagPose(visual,bag.positions,bag.center||layout.mouth.center);
     }
+    for(const[id,visual]of this.content)if(!active.has(id)){this.releaseBag(visual);this.content.delete(id);}
   }
 
   project(point) {
@@ -213,12 +232,14 @@ export class GameRenderer {
     this.pointer.set((clientX-rect.left)/rect.width*2-1,-(clientY-rect.top)/rect.height*2+1);this.raycaster.setFromCamera(this.pointer,this.camera);
     const meshes=[...this.bags.values()].map(visual=>visual.mesh).filter(mesh=>mesh.userData.bag?.state!=='capturing');
     const hit=this.raycaster.intersectObjects(meshes,false)[0];
-    if(hit){const bag=hit.object.userData.bag;return {id:bag.id,center:[...bag.center]};}
-    return nearestScreenBag(this.screenBags,clientX-rect.left,clientY-rect.top);
+    if(hit){const bag=hit.object.userData.bag,face=hit.face;return {id:bag.id,center:[...bag.center],particle:nearestBagParticle(bag.positions,hit.point.toArray(),face?[face.a,face.b,face.c]:null)};}
+    const fallback=nearestScreenBag(this.screenBags,clientX-rect.left,clientY-rect.top);
+    if(fallback){const bag=this.bags.get(fallback.id)?.mesh.userData.bag;fallback.particle=nearestBagParticle(bag.positions,bag.center);}
+    return fallback;
   }
 
   render() {if(!this.dirty)return;this.renderer.render(this.scene,this.camera);this.dirty=false;}
-  getStats() {const info=this.renderer.info;return {triangles:info.render.triangles,drawCalls:info.render.calls,geometries:info.memory.geometries,textures:info.memory.textures,visibleBags:this.screenBags.length,content:this.content.filter(item=>item.group.visible).length,pixelRatio:this.renderer.getPixelRatio(),pixels:this.renderer.domElement.width*this.renderer.domElement.height};}
+  getStats() {const info=this.renderer.info;return {triangles:info.render.triangles,drawCalls:info.render.calls,geometries:info.memory.geometries,textures:info.memory.textures,visibleBags:this.screenBags.length,content:this.content.size,pixelRatio:this.renderer.getPixelRatio(),pixels:this.renderer.domElement.width*this.renderer.domElement.height};}
   releaseBag(visual) {visual.group.removeFromParent();visual.geometry.dispose();visual.seamGeometry.dispose();visual.seamMaterial.dispose();}
-  dispose() {for(const visual of this.bags.values())this.releaseBag(visual);for(const visual of this.content)this.releaseBag(visual);this.releaseBag(this.collector);for(const mesh of this.treeGroup.children)mesh.geometry.dispose();this.treeMaterial.dispose();for(const material of this.materials)material.dispose();this.collectorMaterial.dispose();for(const plane of this.contacts){plane.geometry.dispose();plane.material.dispose();}this.shadowTexture.dispose();this.ground.geometry.dispose();this.ground.material.dispose();this.mouthRim.geometry.dispose();this.mouthRim.material.dispose();this.renderer.dispose();}
+  dispose() {for(const visual of this.bags.values())this.releaseBag(visual);for(const visual of this.content.values())this.releaseBag(visual);this.releaseBag(this.collector);for(const mesh of this.treeGroup.children)mesh.geometry.dispose();this.treeMaterial.dispose();for(const material of this.materials)material.dispose();this.collectorMaterial.dispose();for(const plane of this.contacts){plane.geometry.dispose();plane.material.dispose();}this.shadowTexture.dispose();this.ground.geometry.dispose();this.ground.material.dispose();this.mouthRim.geometry.dispose();this.mouthRim.material.dispose();this.renderer.dispose();}
 }

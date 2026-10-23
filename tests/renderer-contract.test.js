@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { createGameCamera, renderResolution, nearestScreenBag, createTreeGeometry } from '../src/renderer.js';
+import * as Renderer from '../src/renderer.js';
 
 test('rendering stays within the same phone and desktop pixel budget', () => {
   for (const [width,height,dpr] of [[390,780,3],[1920,1080,2],[3840,2160,2],[1280,720,1]]) {
@@ -44,4 +45,11 @@ test('branch tubes are genuinely three dimensional and wound outward', () => {
     assert.ok(normal.dot(outward)>0,'the visible surface normal faces away from branch center');
   }
   geometry.dispose();
+});
+
+test('local grip chooses the actual deformed surface particle and respects a hit face',()=>{
+  assert.equal(typeof Renderer.nearestBagParticle,'function');
+  const positions=new Float32Array([8,1,0, 0,1,0, .1,1,0, 2,2,1]);
+  assert.equal(Renderer.nearestBagParticle(positions,[.09,1,0]),2);
+  assert.equal(Renderer.nearestBagParticle(positions,[.09,1,0],[0,1,3]),1);
 });

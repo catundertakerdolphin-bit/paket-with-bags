@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#f6f4ee" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="description" content="Пакет с пакетами — авторская 3D-игра Арсения Попова. Снимай пакеты с ветвей и успей сложить их, пока не унёс ветер." />
   <title>Пакет с пакетами — Арсений Попов</title>
 </head>
@@ -27,7 +27,7 @@
     <div id="loading-note" class="loading-note" role="status">Выращиваем дерево</div>
     <section id="error" class="error" hidden><h2>Не удалось открыть игру</h2><p id="error-message"></p><button id="reload" class="primary">Попробовать снова</button></section>
     <footer class="footer"><div class="footer-actions"><button id="sound" class="icon-button" aria-label="Включить звук" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path id="sound-mark" d="m16 9 5 6m0-6-5 6"/></svg></button><button id="help" class="icon-button help-button" aria-label="Как играть">?</button></div><a class="credit" href="https://t.me/votposmotrim" target="_blank" rel="noopener noreferrer">автор Арсений Попов</a><span class="footer-note">пакет с пакетами</span></footer>
-    <dialog id="help-dialog"><button id="close-help" class="close-help icon-button" aria-label="Закрыть справку">×</button><h2>Поймать, пока держится.</h2><p>Зажми пакет на дереве, перенеси к горловине большого пакета внизу слева и отпусти, когда она подсветится.</p><p>Полоска показывает, сколько осталось до отрыва. Сначала отпустится одна ручка, потом другая. Улетающий пакет тоже можно поймать.</p><p>Для следующего раунда нужно собрать 60%. С каждым новым деревом ветер сильнее, а пакетов больше.</p><p class="help-keys">Мышь или палец — схватить и перенести.<br>R — начать заново. Пробел — начать или продолжить.</p><button id="help-done" class="primary">К дереву</button></dialog>
+    <dialog id="help-dialog"><button id="close-help" class="close-help icon-button" aria-label="Закрыть справку">×</button><h2>Поймать, пока держится.</h2><p>Зажми пакет на дереве, перенеси к горловине большого пакета внизу слева и отпусти, когда она подсветится.</p><p>Ветер приносит пакеты: одни цепляются за ветки, другие пролетают мимо. Полоска показывает, сколько пакет ещё продержится. Можно поймать и пакет на лету.</p><p>Для следующего раунда нужно собрать 60%. С каждым новым деревом ветер сильнее, а пакетов больше.</p><p class="help-keys">Мышь или палец — схватить и перенести.<br>R — начать заново. Пробел — начать или продолжить.</p><button id="help-done" class="primary">К дереву</button></dialog>
     <pre id="debug" class="debug" hidden></pre>
   </main>
   <script type="module" src="/src/main.js"></script>
